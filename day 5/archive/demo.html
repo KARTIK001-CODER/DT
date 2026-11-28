@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Approval Workflow Demo</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .max-w-4xl {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .p-6 { padding: 24px; }
+    .mb-8 { margin-bottom: 32px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-8 { margin-top: 32px; }
+    .mr-3 { margin-right: 12px; }
+    .mr-2 { margin-right: 8px; }
+    .py-12 { padding-top: 48px; padding-bottom: 48px; }
+    .py-1 { padding-top: 4px; padding-bottom: 4px; }
+    .py-0\.5 { padding-top: 2px; padding-bottom: 2px; }
+    .px-2 { padding-left: 8px; padding-right: 8px; }
+    .px-3 { padding-left: 12px; padding-right: 12px; }
+    .px-4 { padding-left: 16px; padding-right: 16px; }
+    .pt-4 { padding-top: 16px; }
+    .text-3xl { font-size: 30px; }
+    .text-lg { font-size: 18px; }
+    .text-sm { font-size: 14px; }
+    .text-base { font-size: 16px; }
+    .text-xs { font-size: 12px; }
+    .font-bold { font-weight: 700; }
+    .font-medium { font-weight: 500; }
+    .text-gray-900 { color: #111827; }
+    .text-gray-600 { color: #4b5563; }
+    .text-gray-500 { color: #6b7280; }
+    .text-gray-700 { color: #374151; }
+    .text-blue-600 { color: #2563eb; }
+    .text-green-600 { color: #16a34a; }
+    .text-yellow-600 { color: #ca8a04; }
+    .text-red-600 { color: #dc2626; }
+    .text-red-900 { color: #7f1d1d; }
+    .text-red-700 { color: #b91c1c; }
+    .text-yellow-900 { color: #713f12; }
+    .text-yellow-800 { color: #854d0e; }
+    .text-white { color: white; }
+    .bg-gray-50 { background: #f9fafb; }
+    .bg-blue-600 { background: #2563eb; }
+    .bg-green-600 { background: #16a34a; }
+    .bg-red-600 { background: #dc2626; }
+    .bg-yellow-600 { background: #ca8a04; }
+    .bg-yellow-50 { background: #fefce8; }
+    .bg-purple-100 { background: #f3e8ff; }
+    .bg-blue-100 { background: #dbeafe; }
+    .bg-gray-100 { background: #f3f4f6; }
+    .bg-green-100 { background: #dcfce7; }
+    .bg-purple-800 { color: #6b21a8; }
+    .bg-blue-800 { color: #1e40af; }
+    .bg-gray-800 { color: #1f2937; }
+    .bg-green-800 { color: #166534; }
+    .text-purple-800 { color: #6b21a8; }
+    .text-blue-800 { color: #1e40af; }
+    .text-gray-800 { color: #1f2937; }
+    .text-green-800 { color: #166534; }
+    .border { border: 1px solid #e5e7eb; }
+    .border-purple-200 { border-color: #e9d5ff; }
+    .border-blue-200 { border-color: #bfdbfe; }
+    .border-gray-200 { border-color: #e5e7eb; }
+    .border-green-200 { border-color: #bbf7d0; }
+    .border-t { border-top: 1px solid #e5e7eb; }
+    .border-yellow-200 { border-color: #fef9c3; }
+    .rounded-lg { border-radius: 8px; }
+    .rounded-full { border-radius: 9999px; }
+    .rounded { border-radius: 4px; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .hover\:bg-gray-50:hover { background: #f9fafb; }
+    .hover\:bg-green-700:hover { background: #15803d; }
+    .hover\:bg-red-700:hover { background: #b91c1c; }
+    .hover\:bg-yellow-700:hover { background: #a16207; }
+    .hover\:text-gray-700:hover { color: #374151; }
+    .transition-colors { transition: background-color 0.2s; }
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .h-10 { height: 40px; }
+    .h-12 { height: 48px; }
+    .w-10 { width: 40px; }
+    .w-12 { width: 48px; }
+    .border-b-2 { border-bottom: 2px solid; }
+    .max-w-md { max-width: 448px; }
+    .opacity-75 { opacity: 0.75; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ===== REUSABLE COMPONENT 1: PermissionBadge =====
+    function PermissionBadge({ permission, size = 'medium' }) {
+      const colors = {
+        owner: 'bg-purple-100 text-purple-800 border-purple-200',
+        editor: 'bg-blue-100 text-blue-800 border-blue-200',
+        viewer: 'bg-gray-100 text-gray-800 border-gray-200',
+        approver: 'bg-green-100 text-green-800 border-green-200',
+      };
+
+      const sizes = {
+        small: 'text-xs px-2 py-0.5',
+        medium: 'text-sm px-3 py-1',
+        large: 'text-base px-4 py-1.5',
+      };
+
+      return (
+        <span className={`inline-flex items-center border rounded-full ${colors[permission] || colors.viewer} ${sizes[size]}`}>
+          {permission.charAt(0).toUpperCase() + permission.slice(1)}
+        </span>
+      );
+    }
+
+    // ===== REUSABLE COMPONENT 2: ApprovalStatus =====
+    function ApprovalStatus({ status, approver }) {
+      const config = {
+        pending: { color: 'text-yellow-600', icon: '⏳', label: 'Pending' },
+        approved: { color: 'text-green-600', icon: '✓', label: 'Approved' },
+        rejected: { color: 'text-red-600', icon: '✗', label: 'Rejected' },
+      };
+
+      const { color, icon, label } = config[status] || config.pending;
+
+      return (
+        <div className={`flex items-center gap-2 ${color}`}>
+          <span className="text-lg">{icon}</span>
+          <span className="font-medium">{label}</span>
+          {approver && <span className="text-sm opacity-75">by {approver}</span>}
+        </div>
+      );
+    }
+
+    // ===== REUSABLE COMPONENT 3: DocumentVersionList =====
+    function DocumentVersionList({ versions, currentUser, onApprove, canApprove }) {
+      const [expandedVersionId, setExpandedVersionId] = useState(null);
+
+      const toggleExpand = (versionId) => {
+        setExpandedVersionId(expandedVersionId === versionId ? null : versionId);
+      };
+
+      return (
+        <div className="space-y-3">
+          {versions.map((version) => (
+            <div
+              key={version.id}
+              className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => toggleExpand(version.id)}
+                    className="text-gray-500 hover:text-gray-700"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
+                  >
+                    {expandedVersionId === version.id ? '▼' : '▶'}
+                  </button>
+                  <div>
+                    <div className="font-medium">Version {version.versionNumber}</div>
+                    <div className="text-sm text-gray-500">{version.createdAt}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <ApprovalStatus
+                    status={version.approvalStatus}
+                    approver={version.approver}
+                  />
+                  {canApprove && version.approvalStatus === 'pending' && (
+                    <button
+                      onClick={() => onApprove(version.id)}
+                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      style={{ cursor: 'pointer', border: 'none' }}
+                    >
+                      Approve
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {expandedVersionId === version.id && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="text-sm text-gray-600 mb-2">
+                    <strong>Changes:</strong> {version.changes}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-2">
+                    <strong>Author:</strong> {version.author}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Permissions:</span>
+                    {version.permissions.map((perm) => (
+                      <PermissionBadge key={perm} permission={perm} size="small" />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ===== LOADING STATE COMPONENT =====
+    function LoadingState() {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading document versions...</p>
+        </div>
+      );
+    }
+
+    // ===== EMPTY STATE COMPONENT =====
+    function EmptyState() {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-6xl mb-4">📄</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Versions Yet</h3>
+          <p className="text-gray-500 max-w-md">
+            This document has no version history. Create the first version to get started.
+          </p>
+        </div>
+      );
+    }
+
+    // ===== ERROR STATE COMPONENT =====
+    function ErrorState({ error, onRetry }) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Document</h3>
+          <p className="text-red-700 max-w-md mb-4">{error}</p>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              style={{ cursor: 'pointer', border: 'none' }}
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    // ===== MAIN COMPONENT: DocumentApproval =====
+    function DocumentApproval() {
+      const [documentVersions, setDocumentVersions] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      // Mock current user with permissions
+      const currentUser = {
+        id: 'user-123',
+        name: 'John Doe',
+        permissions: ['editor', 'approver'],
+      };
+
+      // Simulate API fetch
+      useEffect(() => {
+        const fetchVersions = async () => {
+          setLoading(true);
+          setError(null);
+
+          try {
+            // Simulate network delay
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            // Mock data - would come from API in real app
+            const mockVersions = [
+              {
+                id: 'v1',
+                versionNumber: 1,
+                createdAt: '2024-11-27 10:00 AM',
+                author: 'Alice Smith',
+                changes: 'Initial document creation',
+                approvalStatus: 'approved',
+                approver: 'Bob Johnson',
+                permissions: ['owner', 'editor', 'viewer'],
+              },
+              {
+                id: 'v2',
+                versionNumber: 2,
+                createdAt: '2024-11-27 02:30 PM',
+                author: 'Alice Smith',
+                changes: 'Updated section 3 with new requirements',
+                approvalStatus: 'pending',
+                approver: null,
+                permissions: ['editor', 'viewer'],
+              },
+              {
+                id: 'v3',
+                versionNumber: 3,
+                createdAt: '2024-11-28 09:15 AM',
+                author: 'John Doe',
+                changes: 'Fixed formatting and added approval workflow',
+                approvalStatus: 'pending',
+                approver: null,
+                permissions: ['editor', 'viewer', 'approver'],
+              },
+            ];
+
+            setDocumentVersions(mockVersions);
+          } catch (err) {
+            setError('Failed to load document versions. Please try again.');
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        fetchVersions();
+      }, []);
+
+      const handleApprove = (versionId) => {
+        setDocumentVersions((prev) =>
+          prev.map((version) =>
+            version.id === versionId
+              ? {
+                  ...version,
+                  approvalStatus: 'approved',
+                  approver: currentUser.name,
+                }
+              : version
+          )
+        );
+      };
+
+      const handleRetry = () => {
+        window.location.reload();
+      };
+
+      // Check if current user can approve
+      const canApprove = currentUser.permissions.includes('approver');
+
+      return (
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Document Approval Workflow
+            </h1>
+            <p className="text-gray-600">
+              Manage document versions and track approval status
+            </p>
+          </div>
+
+          {/* User Info Bar */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+                {currentUser.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-medium">{currentUser.name}</div>
+                <div className="text-sm text-gray-500">Current User</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {currentUser.permissions.map((perm) => (
+                <PermissionBadge key={perm} permission={perm} />
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content - State-Based Rendering */}
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState error={error} onRetry={handleRetry} />
+          ) : documentVersions.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <DocumentVersionList
+              versions={documentVersions}
+              currentUser={currentUser}
+              onApprove={handleApprove}
+              canApprove={canApprove}
+            />
+          )}
+
+          {/* Edge Case Demonstration */}
+          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="font-medium text-yellow-900 mb-2">⚡ Edge Case: Concurrent Approvals</h3>
+            <p className="text-sm text-yellow-800 mb-3">
+              If two users click "Approve" simultaneously, the last write wins. In production,
+              this would use optimistic updates with conflict resolution or server-side locking.
+            </p>
+            <button
+              onClick={() => {
+                setDocumentVersions((prev) =>
+                  prev.map((v) =>
+                    v.approvalStatus === 'pending'
+                      ? { ...v, approvalStatus: 'approved', approver: 'System (Auto)' }
+                      : v
+                  )
+                );
+              }}
+              className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm"
+              style={{ cursor: 'pointer', border: 'none' }}
+            >
+              Simulate Auto-Approve All
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<DocumentApproval />);
+  </script>
+</body>
+</html>
